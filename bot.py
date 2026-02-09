@@ -1,5 +1,6 @@
 import telebot
 from telebot.types import LabeledPrice, Invoice, ShippingOption, Message, PreCheckoutQuery
+import os
 
 # Токен бота получаем из секретов среды
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -25,8 +26,8 @@ def generate_invoice(message):
     start_parameter = "test_support"
     currency = "XTR"  # Telegram Stars
 
-    # Цена в Stellars должна умножаться на 100 (например, 10 stars = 1000)
-    price = LabeledPrice(label="Поддержка", amount=100)
+    # Цена указывается непосредственно в Telegram Stars (без умножения на 100!)
+    price = LabeledPrice(label="Поддержка", amount=1)  # Здесь ставим точное количество Stars
 
     # Отправляем инвойс
     bot.send_invoice(
@@ -47,7 +48,7 @@ def generate_invoice(message):
 # Обработка успешной оплаты
 @bot.message_handler(content_types=["successful_payment"])
 def successful_payment(message: Message):
-    total_amount = int(message.successful_payment.total_amount / 100)  # Преобразуем обратно в обычные Stars
+    total_amount = message.successful_payment.total_amount  # Так как единицы равны Stars, ничего дополнительно не делим
     bot.send_message(chat_id=message.chat.id, text=f"Спасибо за поддержку! Получено {total_amount} Star.")
 
 # Обработка предварительных проверок оплаты
